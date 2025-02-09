@@ -2,6 +2,7 @@ package com.workintech.spring17challenge;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.workintech.spring17challenge.entity.*;
+import com.workintech.spring17challenge.model.*;
 import com.workintech.spring17challenge.exceptions.ApiErrorResponse;
 import com.workintech.spring17challenge.exceptions.ApiException;
 import org.junit.jupiter.api.*;
