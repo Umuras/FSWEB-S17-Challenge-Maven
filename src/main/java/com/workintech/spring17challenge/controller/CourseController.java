@@ -4,6 +4,7 @@ import com.workintech.spring17challenge.exceptions.ApiException;
 import com.workintech.spring17challenge.model.Course;
 import com.workintech.spring17challenge.model.CourseGpa;
 import com.workintech.spring17challenge.model.CourseDTO;
+import com.workintech.spring17challenge.validation.CourseValidation;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,6 +47,7 @@ public class CourseController {
     @GetMapping("/{name}")
     public Course findCourseByName(@PathVariable String name)
     {
+        CourseValidation.courseNameNullControl(name);
         for (int i = 0; i < courses.size(); i++) {
             if(courses.get(i).getName().equals(name))
             {
@@ -76,21 +78,16 @@ public class CourseController {
                 courses.add(course);
                 return courseResponse;
             }else{
-                throw new ApiException("Wrong credit value",HttpStatus.BAD_REQUEST);
+                CourseValidation.wrongCreditNumber(course.getCredit());
             }
+            throw new ApiException("Wrong situation",HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/{id}")
     public CourseDTO update(@PathVariable Integer id, @RequestBody Course course)
     {
-        if(id <= 0)
-        {
-            throw new ApiException("id is greater than 0",HttpStatus.BAD_REQUEST);
-        }
-        if(id >= courses.size())
-        {
-            throw new ApiException("id must be lower than courses size",HttpStatus.BAD_REQUEST);
-        }
+        CourseValidation.isValidId(id);
+        CourseValidation.coursesSizeIsNotGreaterOrEqualId(id,courses);
 
         int updatingCourseId = 0;
         for (int i = 0; i < courses.size(); i++) {
@@ -99,10 +96,7 @@ public class CourseController {
                 updatingCourseId = course.getId();
             }
         }
-        if(updatingCourseId == 0)
-        {
-            throw new ApiException("There is no course in this id",HttpStatus.NOT_FOUND);
-        }
+        CourseValidation.idIsNotEqualZero(updatingCourseId);
         if(course.getCredit() <= 2)
         {
             CourseDTO courseResponse = new CourseDTO(course,
@@ -119,18 +113,19 @@ public class CourseController {
                     course.getGrade().getCoefficient() * course.getCredit() * highCourseGpa.getGpa());
             courses.set(updatingCourseId,course);
             return courseResponse;
+        }else
+        {
+            CourseValidation.wrongCreditNumber(course.getCredit());
         }
-        throw new ApiException("Wrong credit value",HttpStatus.BAD_REQUEST);
+        throw new ApiException("Wrong situation",HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/{id}")
     public Course delete(@PathVariable Integer id)
     {
-        if(id <= 0)
-        {
-            throw new ApiException("id is greater than 0",HttpStatus.BAD_REQUEST);
-        }
+        CourseValidation.isValidId(id);
         Course course = courses.get(id);
+        CourseValidation.courseNullControl(course);
         courses.remove(id);
         return course;
     }
