@@ -61,26 +61,21 @@ public class CourseController {
     @ResponseStatus(HttpStatus.CREATED)
     public CourseDTO save(@RequestBody Course course)
     {
+            CourseValidation.wrongCreditNumber(course.getCredit());
+            CourseDTO courseResponse = null;
             if(course.getCredit() <= 2)
             {
-                CourseDTO courseResponse = new CourseDTO(course,
+                courseResponse = new CourseDTO(course,
                         course.getGrade().getCoefficient() * course.getCredit() * lowCourseGpa.getGpa());
-                courses.add(course);
-                return courseResponse;
             } else if (course.getCredit() == 3) {
-                CourseDTO courseResponse = new CourseDTO(course,
+                courseResponse = new CourseDTO(course,
                         course.getGrade().getCoefficient() * course.getCredit() * mediumCourseGpa.getGpa());
-                courses.add(course);
-                return courseResponse;
-            } else if (course.getCredit() == 4) {
-                CourseDTO courseResponse = new CourseDTO(course,
+            } else {
+                courseResponse = new CourseDTO(course,
                         course.getGrade().getCoefficient() * course.getCredit() * highCourseGpa.getGpa());
-                courses.add(course);
-                return courseResponse;
-            }else{
-                CourseValidation.wrongCreditNumber(course.getCredit());
             }
-            throw new ApiException("Wrong situation",HttpStatus.BAD_REQUEST);
+        courses.add(course);
+        return courseResponse;
     }
 
     @PutMapping("/{id}")
@@ -97,27 +92,21 @@ public class CourseController {
             }
         }
         CourseValidation.idIsNotEqualZero(updatingCourseId);
+        CourseValidation.wrongCreditNumber(course.getCredit());
+        CourseDTO courseResponse = null;
         if(course.getCredit() <= 2)
         {
-            CourseDTO courseResponse = new CourseDTO(course,
+            courseResponse = new CourseDTO(course,
                     course.getGrade().getCoefficient() * course.getCredit() * lowCourseGpa.getGpa());
-            courses.set(updatingCourseId,course);
-            return courseResponse;
         } else if (course.getCredit() == 3) {
-            CourseDTO courseResponse = new CourseDTO(course,
+            courseResponse = new CourseDTO(course,
                     course.getGrade().getCoefficient() * course.getCredit() * mediumCourseGpa.getGpa());
-            courses.set(updatingCourseId,course);
-            return courseResponse;
         } else if (course.getCredit() == 4) {
-            CourseDTO courseResponse = new CourseDTO(course,
+            courseResponse = new CourseDTO(course,
                     course.getGrade().getCoefficient() * course.getCredit() * highCourseGpa.getGpa());
-            courses.set(updatingCourseId,course);
-            return courseResponse;
-        }else
-        {
-            CourseValidation.wrongCreditNumber(course.getCredit());
         }
-        throw new ApiException("Wrong situation",HttpStatus.BAD_REQUEST);
+        courses.set(updatingCourseId,course);
+        return courseResponse;
     }
 
     @DeleteMapping("/{id}")
